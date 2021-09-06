@@ -15,12 +15,15 @@ const create = async ({ name, budget }) => {
   return newAccount;
 };
 
-const updateById = (id, account) => {
-  // DO YOUR MAGIC
+const updateById = async (id, { name, budget }) => {
+  const trimmedName = await name.trim();
+  await db("accounts").where("id", id).update({ name: trimmedName, budget });
+  const updatedAccount = await getById(id);
+  return updatedAccount;
 };
 
 const deleteById = (id) => {
-  // DO YOUR MAGIC
+  return db("accounts").where("id", id).del();
 };
 
 module.exports = {
