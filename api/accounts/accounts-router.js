@@ -1,7 +1,11 @@
 const router = require("express").Router();
 const Accounts = require("./accounts-model");
 
-const { checkAccountId } = require("./accounts-middleware");
+const {
+  checkAccountId,
+  checkAccountPayload,
+  checkAccountNameUnique,
+} = require("./accounts-middleware");
 
 router.get("/", async (req, res, next) => {
   try {
@@ -16,9 +20,19 @@ router.get("/:id", checkAccountId, (req, res) => {
   res.status(200).json(req.account);
 });
 
-router.post("/", (req, res, next) => {
-  // DO YOUR MAGIC
-});
+router.post(
+  "/",
+  checkAccountPayload,
+  checkAccountNameUnique,
+  async (req, res, next) => {
+    try {
+      const data = await Accounts.create(req.body);
+      res.status(201).json(data);
+    } catch (err) {
+      next();
+    }
+  }
+);
 
 router.put("/:id", (req, res, next) => {
   // DO YOUR MAGIC
@@ -28,6 +42,7 @@ router.delete("/:id", (req, res, next) => {
   // DO YOUR MAGIC
 });
 
+// eslint-disable-next-line
 router.use((err, req, res, next) => {
   res.status(err.status || 500).json({
     custom: "something went wrong with the accounts router",
